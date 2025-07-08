@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metin Paylaş</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Metin Paylaş</h1>
+        <textarea id="textInput" placeholder="Metninizi buraya yazın..."></textarea>
+        <div class="options">
+            <label>
+                <input type="radio" name="visibility" value="public" checked> Herkese Açık
+            </label>
+            <label>
+                <input type="radio" name="visibility" value="private"> Özel (Şifreyle)
+            </label>
+            <input type="password" id="passwordInput" placeholder="Şifre (özel için)" class="hidden">
+        </div>
+        <button onclick="shareText()">Paylaş</button>
+        <div id="shareLink" class="hidden"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

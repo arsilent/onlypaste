@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metni Görüntüle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Paylaşılan Metin</h1>
+        <div id="passwordPrompt" class="hidden">
+            <input type="password" id="viewPassword" placeholder="Şifreyi girin">
+            <button onclick="checkPassword()">Göster</button>
+        </div>
+        <pre id="sharedText" class="hidden"></pre>
+        <div id="errorMessage" class="hidden"></div>
+    </div>
+    <script>
+        // Simüle edilmiş veritabanı (aynı tarayıcıda çalışması için)
+        const mockDatabase = window.opener ? window.opener.mockDatabase : {};
+
+        // URL'den ID'yi al
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        // Metni kontrol et
+        const data = mockDatabase[id];
+
+        if (!data) {
+            document.getElementById('errorMessage').textContent = 'Metin bulunamadı.';
+            document.getElementById('errorMessage').classList.remove('hidden');
+        } else if (data.visibility === 'public') {
+            document.getElementById('sharedText').textContent = data.text;
+            document.getElementById('sharedText').classList.remove('hidden');
+        } else {
+            document.getElementById('passwordPrompt').classList.remove('hidden');
+        }
+
+        function checkPassword() {
+            const enteredPassword = document.getElementById('viewPassword').value;
+            if (enteredPassword === data.password) {
+                document.getElementById('sharedText').textContent = data.text;
+                document.getElementById('sharedText').classList.remove('hidden');
+                document.getElementById('passwordPrompt').classList.add('hidden');
+            } else {
+                document.getElementById('errorMessage').textContent = 'Yanlış şifre.';
+                document.getElementById('errorMessage').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
