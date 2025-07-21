@@ -1,1 +1,1 @@
-TRUE: "ŞUAN LOADER BAKIMDA!", TELEGRAM_BUTTON: "https://t.me/arsilent"
+FALSE: "ŞUAN LOADER BAKIMDA!", TELEGRAM_BUTTON: "https://t.me/arsilent"
