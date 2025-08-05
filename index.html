@@ -2,65 +2,223 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kalıcı video yükleme ve paylaşma platformu">
   <title>Kalıcı Video Upload</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root{--bg:#0d1117;--bg2:#161b22;--accent:#0a84ff;--text:#c9d1d9;--danger:#f85149}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,Arial;background:var(--bg);color:var(--text);padding:1rem}
-    h1{margin-top:0;color:var(--accent)}
-    input[type=file]{margin-bottom:1rem}
-    .section{margin-bottom:2rem}
-    .video-item{background:var(--bg2);padding:.75rem;margin-bottom:.75rem;border-radius:6px;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
-    .video-item video{max-width:100%;height:auto;border-radius:4px;max-height:150px}
-    .video-item .info{flex:1;min-width:200px}
-    .video-item .info p{margin:.2rem 0;font-size:.85rem}
-    .video-item button{background:var(--danger);border:none;color:#fff;padding:.4rem .7rem;border-radius:4px;cursor:pointer;font-size:.8rem}
-    .video-item button:hover{filter:brightness(1.2)}
-    #loader{display:none;margin-bottom:1rem;color:var(--accent)}
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --accent: #0a84ff;
+      --text: #c9d1d9;
+      --danger: #f85149;
+      --success: #2ea043;
+      --border-radius: 8px;
+      --shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --bg2: #f6f8fa;
+      --text: #24292e;
+      --accent: #0366d6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .upload-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      background: var(--bg2);
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    input[type="file"] {
+      padding: 0.5rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: var(--border-radius);
+    }
+    .progress-bar {
+      display: none;
+      height: 8px;
+      background: var(--bg2);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    .progress-bar div {
+      height: 100%;
+      background: var(--accent);
+      width: 0;
+      transition: width 0.3s ease;
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .video-item {
+      background: var(--bg2);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease;
+    }
+    .video-item:hover {
+      transform: translateY(-2px);
+    }
+    .video-item video {
+      max-width: 100%;
+      border-radius: 4px;
+      max-height: 200px;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .video-item .info {
+      font-size: 0.9rem;
+    }
+    .video-item .info p {
+      margin: 0.2rem 0;
+      word-break: break-all;
+    }
+    .video-item .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    button, .action-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s ease;
+    }
+    button:hover, .action-btn:hover {
+      filter: brightness(1.2);
+    }
+    button.delete {
+      background: var(--danger);
+    }
+    #loader {
+      display: none;
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.1rem;
+      margin: 1rem 0;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    @media (max-width: 600px) {
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+      .upload-section {
+        padding: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Kalıcı Video Upload</h1>
+  <button class="theme-toggle" aria-label="Tema değiştir" onclick="toggleTheme()">
+    <i class="fas fa-moon"></i>
+  </button>
+  <div class="container">
+    <h1>Kalıcı Video Upload</h1>
+    
+    <div class="upload-section">
+      <input id="fileInput" type="file" accept="video/*" multiple aria-label="Video dosyalarını seç">
+      <div class="progress-bar"><div></div></div>
+      <div id="loader">Yükleniyor…</div>
+    </div>
 
-  <input id="fileInput" type="file" accept="video/*" multiple>
-  <div id="loader">Yükleniyor…</div>
-
-  <div class="section">
-    <h2>Benim Yüklediklerim</h2>
-    <div id="myVideos"></div>
+    <div class="section">
+      <h2>Yüklenen Videolar</h2>
+      <div class="video-grid" id="myVideos"></div>
+    </div>
   </div>
 
   <script>
     const API_URL = 'https://tmpfiles.org/api/v1/upload';
-    const input     = document.getElementById('fileInput');
-    const myVideos  = document.getElementById('myVideos');
-    const loader    = document.getElementById('loader');
+    const input = document.getElementById('fileInput');
+    const myVideos = document.getElementById('myVideos');
+    const loader = document.getElementById('loader');
+    const progressBar = document.querySelector('.progress-bar');
+    const progress = progressBar.querySelector('div');
 
-    // Sayfa açılınca listele
+    // Tema değiştirme
+    function toggleTheme() {
+      document.documentElement.dataset.theme = 
+        document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+      document.querySelector('.theme-toggle i').className = 
+        document.documentElement.dataset.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+
+    // Sayfa yüklenince
     window.addEventListener('DOMContentLoaded', listMy);
 
-    // Dosya ekleme
+    // Dosya yükleme
     input.addEventListener('change', async () => {
+      if (!input.files.length) return;
       loader.style.display = 'block';
+      progressBar.style.display = 'block';
+      const totalFiles = input.files.length;
+      let uploaded = 0;
+
       for (const file of [...input.files]) {
-        await upload(file);
+        await upload(file, () => {
+          uploaded++;
+          progress.style.width = `${(uploaded / totalFiles) * 100}%`;
+        });
       }
       input.value = '';
       loader.style.display = 'none';
+      progressBar.style.display = 'none';
+      progress.style.width = '0';
     });
 
-    async function upload(file) {
+    async function upload(file, onProgress) {
       const form = new FormData();
       form.append('file', file);
       try {
         const res = await fetch(API_URL, { method: 'POST', body: form });
         const json = await res.json();
         if (json.status === 'success') {
-          const url = json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/'); // direct link
+          const url = json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
           saveVideo(url, file.name);
+          onProgress();
         } else {
-          alert('Yüklenemedi: ' + JSON.stringify(json));
+          alert('Yükleme başarısız: ' + JSON.stringify(json));
         }
       } catch (e) {
         alert('Bağlantı hatası: ' + e);
@@ -68,7 +226,64 @@
     }
 
     function saveVideo(url, filename) {
-      const key = 'my_' + Date.now() + '_' + filename;
+      const timestamp = Date.now();
+      const key = `my_${timestamp}_${filename}`;
+      localStorage.setItem(key, JSON.stringify({
+        url,
+        filename,
+        timestamp: new Date(timestamp).toLocaleString('tr-TR')
+      }));
+      listMy();
+    }
+
+    function listMy() {
+      myVideos.innerHTML = '';
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('my_'))
+        .sort((a, b) => b.localeCompare(a))
+        .forEach(k => {
+          const data = JSON.parse(localStorage.getItem(k));
+          addCard(k, data.url, data.filename, data.timestamp);
+        });
+    }
+
+    function addCard(key, url, filename, timestamp) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'video-item';
+
+      const vid = document.createElement('video');
+      vid.src = url;
+      vid.controls = true;
+      vid.setAttribute('aria-label', `Video: ${filename}`);
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML = `
+        <p><strong>${filename}</strong></p>
+        <p><small>Yükleme: ${timestamp}</small></p>
+        <p><small><a href="${url}" target="_blank">${url}</a></small></p>
+      `;
+
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+      actions.innerHTML = `
+        <button class="action-btn" onclick="navigator.clipboard.writeText('${url}'); alert('Link kopyalandı!')">
+          <i class="fas fa-copy"></i> Kopyala
+        </button>
+        <a class="action-btn" href="${url}" download><i class="fas fa-download"></i> İndir</a>
+        <button class="action-btn delete" onclick="localStorage.removeItem('${key}'); listMy();">
+          <i class="fas fa-trash"></i> Sil
+        </button>
+      `;
+
+      wrapper.appendChild(vid);
+      wrapper.appendChild(info);
+      wrapper.appendChild(actions);
+      myVideos.appendChild(wrapper);
+    }
+  </script>
+</body>
+</html>      const key = 'my_' + Date.now() + '_' + filename;
       localStorage.setItem(key, url);
       listMy();
     }
